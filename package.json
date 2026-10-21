@@ -1,0 +1,21 @@
+{
+  "name": "mcu51-ai-platform",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AI孪生实验助手——基于Agnes的远程硬件实验智能闭环系统",
+  "type": "module",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "start": "node server/index.js",
+    "sim": "node server/index.js --sim",
+    "mcp": "node server/mcp-stdio.js",
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.17.5",
+    "express": "4.21.2",
+    "serialport": "12.0.0",
+    "ws": "8.18.0",
+    "zod": "3.25.76"
+  }
+}

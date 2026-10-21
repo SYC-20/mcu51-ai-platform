@@ -1,0 +1,19 @@
+node_modules/
+data/
+config.json
+*.ihx
+*.rel
+*.lst
+*.sym
+*.asm
+*.map
+*.mem
+*.lk
+*.rst
+sdcc-*-setup.exe
+
+# 大文件与个人隐私：不要提交
+*.mp4
+*.zip
+*.docx
+.DS_Store

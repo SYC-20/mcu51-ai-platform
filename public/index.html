@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>51 单片机 AI 智慧测评平台 · Agnes</title>
+<link rel="icon" href="icons/cpu.svg">
+<link rel="stylesheet" href="styles.css?v=20261008b">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <i class="ic logo" style="--ic:url(icons/cpu.svg)"></i>
+    <div>
+      <div class="brand-title">51 单片机 AI 智慧测评平台</div>
+      <div class="brand-sub">STC89C52 · Agnes</div>
+    </div>
+  </div>
+  <div class="status">
+    <span id="modeBadge" class="pill">--</span>
+    <span id="boardInfo" class="board-info">连接中…</span>
+    <span id="aghBadge" class="pill">AI</span>
+    <span id="busy" class="pill warn hidden"></span>
+  </div>
+  <button id="btnEval" class="primary big"><i class="ic" style="--ic:url(icons/player-play.svg)"></i>一键测评</button>
+</header>
+<main>
+  <section class="col left">
+    <div class="panel exp-panel">
+      <h2><i class="ic c-teal" style="--ic:url(icons/flask.svg)"></i>实验列表</h2>
+      <div id="expList" class="exp-list" role="listbox" aria-label="实验列表"></div>
+    </div>
+    <div class="panel board">
+      <h2><i class="ic c-teal" style="--ic:url(icons/cpu.svg)"></i>板卡实况 <span class="chip mono">STC89C52</span><small id="pinTime" class="mono"></small></h2>
+      <div class="pcb">
+        <div class="zone zone-led"><div class="zt">八色指示灯</div><div class="leds" id="leds"></div></div>
+        <div class="board-row">
+          <div class="zone zone-seg"><div class="zt">数码管显示（4 位）</div><div class="segs" id="segs" aria-label="数码管"></div></div>
+          <div class="zone zone-buzz"><div class="zt">蜂鸣器</div><div class="buzz"><span id="buzzer" class="dot"></span><span id="buzzState" class="buzz-pill">停</span></div></div>
+        </div>
+        <div class="zone zone-motor"><div class="zt">步进电机 28BYJ-48</div><div class="motor"><svg class="motor-ic" viewBox="0 0 130 70" aria-hidden="true"><defs><linearGradient id="mPlate" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eef1f5"/><stop offset="1" stop-color="#c7cfd9"/></linearGradient><radialGradient id="mBody" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#d9ecff"/><stop offset=".45" stop-color="#5aa2ea"/><stop offset="1" stop-color="#1f5fae"/></radialGradient></defs><g stroke-width="2.6" stroke-linecap="round"><path d="M3 27H22" stroke="#3b6fd8"/><path d="M3 31H22" stroke="#f28ab2"/><path d="M3 35H22" stroke="#f2c230"/><path d="M3 39H22" stroke="#f28a30"/><path d="M3 43H22" stroke="#e0453a"/></g><rect x="20" y="22" width="9" height="26" rx="2" fill="#f7f8fa" stroke="#b3bac5"/><rect x="31" y="6" width="58" height="58" rx="8" fill="url(#mPlate)" stroke="#a7b0bc"/><g fill="#8e98a6" stroke="#6f7987" stroke-width=".8"><circle cx="38" cy="13" r="3"/><circle cx="82" cy="13" r="3"/><circle cx="38" cy="57" r="3"/><circle cx="82" cy="57" r="3"/></g><circle cx="60" cy="35" r="25" fill="url(#mBody)" stroke="#1b5596" stroke-width="1.2"/><circle cx="60" cy="35" r="18" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="1"/><circle cx="60" cy="35" r="11" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="1"/><g id="rotor"><path d="M60 35V13" stroke="#e2462f" stroke-width="3" stroke-linecap="round"/><path d="M60 35V44" stroke="#3b4556" stroke-width="3" stroke-linecap="round"/><circle cx="60" cy="35" r="5" fill="#f2a33a" stroke="#c47812" stroke-width="1"/><circle cx="60" cy="35" r="1.8" fill="#fff"/></g></svg><span id="motorState" class="buzz-pill motor-pill">停止</span></div></div>
+        <div class="zone"><div class="zt">独立按键 SW5 ~ SW8</div><div class="keys" id="keys"></div></div>
+      </div>
+      <p class="hint">按住板上按键 SW5 ~ SW8 可模拟按下</p>
+    </div>
+  </section>
+
+  <section class="col mid">
+    <details class="panel req-strip" open>
+      <summary><i class="ic c-teal" style="--ic:url(icons/clipboard-text.svg)"></i><span id="expTitle">实验要求</span><i class="ic chev" style="--ic:url(icons/chevron-down.svg)"></i></summary>
+      <p id="expReq" class="req"></p>
+    </details>
+    <div class="panel editor-card">
+      <div class="toolbar">
+        <div class="file"><i class="ic" style="--ic:url(icons/file-code.svg)"></i>main.c</div>
+        <select id="exampleSel" aria-label="载入示例程序"><option value="">载入示例程序</option><option value="__upload">📂 上传自己的程序（.c 文件）…</option></select><input type="file" id="codeFile" accept=".c,.h,.txt" hidden>
+        <span class="spacer"></span>
+        <button id="btnCompile" class="quiet"><i class="ic" style="--ic:url(icons/hammer.svg)"></i>编译</button>
+        <button id="btnFlash" class="quiet"><i class="ic" style="--ic:url(icons/upload.svg)"></i>烧录</button>
+        <button id="btnTest" class="teal"><i class="ic" style="--ic:url(icons/checklist.svg)"></i>测评</button>
+      </div>
+      <div class="code-wrap">
+        <pre id="gutter" class="gutter mono" aria-hidden="true"></pre>
+        <textarea id="code" spellcheck="false" aria-label="C 代码"></textarea>
+      </div>
+      <div id="errors" class="errors mono" role="alert"></div>
+    </div>
+    <div class="panel result-panel">
+      <div id="result" class="result empty" aria-live="polite">
+        <div class="ring idle"><b>--</b></div>
+        <div class="result-body">
+          <strong class="result-title">还没有测评</strong>
+          <span class="muted">点右上角“一键测评”，自动编译、烧录、测评</span>
+        </div>
+      </div>
+      <ol id="steps" class="steps" aria-label="测评步骤">
+        <li data-step="compile"><i class="ic" style="--ic:url(icons/circle-check.svg)"></i>编译</li>
+        <li data-step="flash"><i class="ic" style="--ic:url(icons/circle-check.svg)"></i>烧录</li>
+        <li data-step="test"><i class="ic" style="--ic:url(icons/circle-check.svg)"></i>测评</li>
+      </ol>
+      <details class="log-box">
+        <summary><i class="ic" style="--ic:url(icons/file-text.svg)"></i>运行日志<span id="logLast" class="log-last mono"></span><i class="ic chev" style="--ic:url(icons/chevron-down.svg)"></i></summary>
+        <div id="log" class="log mono"></div>
+      </details>
+    </div>
+  </section>
+
+  <section class="col right panel">
+    <div class="tabs" role="tablist">
+      <button role="tab" class="tab active" data-tab="chatPane" aria-selected="true"><i class="ic c-teal" style="--ic:url(icons/robot.svg)"></i>Agnes 助教</button>
+      <button role="tab" class="tab" data-tab="historyPane" aria-selected="false"><i class="ic" style="--ic:url(icons/history.svg)"></i>测评记录</button>
+    </div>
+    <div id="chatPane" class="pane chat-pane" role="tabpanel">
+      <div class="chat-head">
+        <div class="modes" role="radiogroup" aria-label="助教模式">
+          <label><input type="radio" name="mode" value="ask" checked><span>答疑</span></label>
+          <label><input type="radio" name="mode" value="fix"><span>自动排错</span></label>
+          <label><input type="radio" name="mode" value="analyze"><span>学情分析</span></label>
+        </div>
+        <button id="btnReset" class="ghost" title="清空对话"><i class="ic" style="--ic:url(icons/refresh.svg)"></i>新对话</button>
+      </div>
+      <div id="chat" class="chat" aria-live="polite"></div>
+      <div id="aiProgress" class="progress"></div>
+      <div class="composer">
+        <textarea id="ask" rows="2" placeholder="问点什么，或让 Agnes 帮你改程序并上板验证…（Ctrl+Enter 发送）"></textarea>
+      </div>
+      <div class="composer-bar">
+        <label class="toggle"><input type="checkbox" id="speakOn" checked><i class="sw"></i><i class="ic" style="--ic:url(icons/volume.svg)"></i>朗读</label>
+        <span class="spacer"></span>
+        <button id="btnMic" class="mic" title="按住说话，松开发送"><i class="ic" style="--ic:url(icons/microphone.svg)"></i><span>按住说话</span></button>
+        <button id="btnAsk" class="primary">发送</button>
+      </div>
+    </div>
+    <div id="historyPane" class="pane history-pane hidden" role="tabpanel">
+      <div class="history-head"><span class="muted">最近的测评结果</span><button id="btnReport" class="ghost"><i class="ic" style="--ic:url(icons/download.svg)"></i>全部导出</button></div>
+      <div id="history" class="history"></div>
+    </div>
+  </section>
+</main>
+<script type="module" src="app.js?v=20261008b"></script>
+</body>
+</html>

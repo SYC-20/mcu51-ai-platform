@@ -1,0 +1,16 @@
+{
+  "port": 8051,
+  "mode": "hardware",
+  "sdcc": { "bin": "C:\\Program Files\\SDCC\\bin\\sdcc.exe", "packihx": "C:\\Program Files\\SDCC\\bin\\packihx.exe" },
+  "flash": {
+    "driver": "builtin",
+    "port": "COM3",
+    "handshakeBaud": 2400,
+    "transferBaud": 19200,
+    "powerCycle": "rts"
+  },
+  "detector": { "port": "COM3", "baud": 115200 },
+  "agh": {
+    "cli": "D:\\your-agnes-harness\\packages\\cli\\dist\\stable\\agnes.mjs"
+  }
+}
